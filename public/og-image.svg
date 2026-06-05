@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">WarrantyTracker social preview</title>
+  <desc id="desc">A clean dashboard preview for warranty, receipt, and reminder tracking.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eff6ff"/>
+      <stop offset="0.52" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#ecfeff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#0f172a" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="72" y="62" width="1056" height="506" rx="42" fill="#fff" opacity="0.88" filter="url(#shadow)" stroke="#dbeafe" stroke-width="2"/>
+  <g transform="translate(128 122)">
+    <rect width="54" height="54" rx="15" fill="#2563eb"/>
+    <path d="M27 10 43 19v18L27 49 11 37V19L27 10Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M27 28 43 19M27 28 11 19M27 28v21" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="76" y="38" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" fill="#2563eb">WarrantyTracker</text>
+  </g>
+  <text x="128" y="292" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="900" fill="#0f172a">
+    <tspan x="128" dy="0">Track warranties, receipts,</tspan>
+    <tspan x="128" dy="78">and reminders in one place.</tspan>
+  </text>
+  <text x="128" y="462" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#475569">
+    Product records, document storage, expiry alerts, and maintenance history.
+  </text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">
+    <circle cx="132" cy="526" r="9" fill="#22c55e"/>
+    <text x="150" y="534" fill="#16a34a">Active</text>
+    <circle cx="264" cy="526" r="9" fill="#f59e0b"/>
+    <text x="282" y="534" fill="#f59e0b">Expiring soon</text>
+    <circle cx="472" cy="526" r="9" fill="#ef4444"/>
+    <text x="490" y="534" fill="#ef4444">Expired</text>
+  </g>
+</svg>

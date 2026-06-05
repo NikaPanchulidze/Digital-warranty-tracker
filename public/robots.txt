@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /products
+Disallow: /notifications
+Disallow: /settings
+Disallow: /profile
+Disallow: /api
+
+Sitemap: https://www.warrantytracker.website/sitemap.xml
