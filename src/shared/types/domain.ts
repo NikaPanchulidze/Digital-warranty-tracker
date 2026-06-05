@@ -49,6 +49,7 @@ export type MaintenanceRecord = {
   description: string;
   cost: number | null;
   service_provider: string | null;
+  next_reminder_date: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -57,6 +58,8 @@ export type Notification = {
   id: string;
   user_id: string;
   product_id: string | null;
+  maintenance_record_id: string | null;
+  reminder_type: 'warranty' | 'maintenance';
   type: 'in_app' | 'email';
   threshold_days: number | null;
   title: string;

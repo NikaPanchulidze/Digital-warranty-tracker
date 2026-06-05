@@ -5,7 +5,15 @@ import * as nodemailer from 'nodemailer';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { SupabaseService } from '../supabase/supabase.service';
 import { calculateDaysLeft } from '../common/warranty';
-import { renderTestEmail, renderWarrantyReminderEmail, renderWarrantyReminderText, type EmailReminderProduct } from './notification-email';
+import {
+  renderMaintenanceReminderEmail,
+  renderMaintenanceReminderText,
+  renderTestEmail,
+  renderWarrantyReminderEmail,
+  renderWarrantyReminderText,
+  type EmailMaintenanceReminder,
+  type EmailReminderProduct,
+} from './notification-email';
 
 type ProductRow = {
   id: string;
@@ -14,11 +22,25 @@ type ProductRow = {
   warranty_end_date: string | null;
 };
 
+type MaintenanceReminderRow = {
+  id: string;
+  user_id: string;
+  product_id: string;
+  date: string;
+  description: string;
+  next_reminder_date: string | null;
+  products: {
+    name: string;
+  } | null;
+};
+
 type NotificationSettingsRow = {
   user_id: string;
   email_reminders_enabled: boolean;
   thresholds: number[];
 };
+
+type ReminderType = 'warranty' | 'maintenance';
 
 const READ_IN_APP_RETENTION_DAYS = 90;
 const FAILED_EMAIL_RETENTION_DAYS = 30;
@@ -130,7 +152,9 @@ export class NotificationsService {
         }
       }
     }
-    return { checked: (data ?? []).length, created };
+
+    const maintenanceResult = await this.runMaintenanceRemindersForUser(userId, email, settings);
+    return { checked: (data ?? []).length + maintenanceResult.checked, created: created + maintenanceResult.created };
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
@@ -192,13 +216,42 @@ export class NotificationsService {
     return eligibleThresholds[0] ?? null;
   }
 
+  private async runMaintenanceRemindersForUser(userId: string, email: string, settings: NotificationSettingsRow | null) {
+    const maintenanceThresholds = [7, 0];
+    const { data, error } = await this.supabase.client
+      .from('maintenance_records')
+      .select('id,user_id,product_id,date,description,next_reminder_date,products(name)')
+      .eq('user_id', userId)
+      .not('next_reminder_date', 'is', null);
+    if (error) throw error;
+
+    let created = 0;
+    for (const maintenance of (data ?? []) as unknown as MaintenanceReminderRow[]) {
+      const daysLeft = calculateDaysLeft(maintenance.next_reminder_date);
+      const matchedThreshold = this.getMatchedThreshold(daysLeft, maintenanceThresholds);
+      if (daysLeft == null || matchedThreshold == null) continue;
+
+      if (await this.createInAppMaintenanceReminder(maintenance, matchedThreshold, daysLeft)) {
+        created += 1;
+      }
+      if (settings?.email_reminders_enabled ?? true) {
+        if (await this.createEmailMaintenanceReminder(maintenance, matchedThreshold, daysLeft, email)) {
+          created += 1;
+        }
+      }
+    }
+
+    return { checked: (data ?? []).length, created };
+  }
+
   private async createInAppReminder(product: ProductRow, threshold: number, daysLeft: number) {
-    const existing = await this.findExistingReminder(product, 'in_app', threshold);
+    const existing = await this.findExistingWarrantyReminder(product, 'in_app', threshold);
     if (existing) return false;
 
     const { error } = await this.supabase.client.from('notifications').insert({
       user_id: product.user_id,
       product_id: product.id,
+      reminder_type: 'warranty',
       type: 'in_app',
       threshold_days: threshold,
       title: 'Warranty expires soon',
@@ -211,7 +264,7 @@ export class NotificationsService {
   }
 
   private async createEmailReminder(product: ProductRow, threshold: number, daysLeft: number, email: string) {
-    const existing = await this.findExistingReminder(product, 'email', threshold);
+    const existing = await this.findExistingWarrantyReminder(product, 'email', threshold);
     if (existing) return false;
     if (!this.transporter || !email) return false;
 
@@ -233,10 +286,76 @@ export class NotificationsService {
     const { error } = await this.supabase.client.from('notifications').insert({
       user_id: product.user_id,
       product_id: product.id,
+      reminder_type: 'warranty',
       type: 'email',
       threshold_days: threshold,
       title: 'Email warranty reminder',
       message: `Email reminder for ${product.name} at ${daysLeft} days remaining.`,
+      status,
+      sent_at: status === 'sent' ? new Date().toISOString() : null,
+    });
+    if (error) throw error;
+    return true;
+  }
+
+  private async createInAppMaintenanceReminder(maintenance: MaintenanceReminderRow, threshold: number, daysLeft: number) {
+    const existing = await this.findExistingMaintenanceReminder(maintenance, 'in_app', threshold);
+    if (existing) return false;
+
+    const productName = maintenance.products?.name ?? 'Product';
+    const dueText = daysLeft === 0 ? 'today' : `in ${daysLeft} days`;
+    const { error } = await this.supabase.client.from('notifications').insert({
+      user_id: maintenance.user_id,
+      product_id: maintenance.product_id,
+      maintenance_record_id: maintenance.id,
+      reminder_type: 'maintenance',
+      type: 'in_app',
+      threshold_days: threshold,
+      title: 'Maintenance reminder',
+      message: `${productName} maintenance reminder: ${maintenance.description} is due ${dueText}.`,
+      status: 'sent',
+      sent_at: new Date().toISOString(),
+    });
+    if (error) throw error;
+    return true;
+  }
+
+  private async createEmailMaintenanceReminder(maintenance: MaintenanceReminderRow, threshold: number, daysLeft: number, email: string) {
+    const existing = await this.findExistingMaintenanceReminder(maintenance, 'email', threshold);
+    if (existing) return false;
+    if (!this.transporter || !email) return false;
+
+    const productName = maintenance.products?.name ?? 'Product';
+    let status: 'sent' | 'failed' = 'failed';
+    try {
+      const reminder: EmailMaintenanceReminder = {
+        productName,
+        description: maintenance.description,
+        daysLeft,
+        threshold,
+        reminderDate: maintenance.next_reminder_date ?? '',
+      };
+      await this.transporter.sendMail({
+        from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <noreply@example.com>',
+        to: email,
+        subject: 'Maintenance Reminder: Product service is due',
+        text: renderMaintenanceReminderText(reminder),
+        html: renderMaintenanceReminderEmail(reminder),
+      });
+      status = 'sent';
+    } catch (error) {
+      console.error('Maintenance email notification failed', error);
+    }
+
+    const { error } = await this.supabase.client.from('notifications').insert({
+      user_id: maintenance.user_id,
+      product_id: maintenance.product_id,
+      maintenance_record_id: maintenance.id,
+      reminder_type: 'maintenance',
+      type: 'email',
+      threshold_days: threshold,
+      title: 'Email maintenance reminder',
+      message: `Email reminder for ${productName} maintenance at ${daysLeft} days remaining.`,
       status,
       sent_at: status === 'sent' ? new Date().toISOString() : null,
     });
@@ -251,12 +370,27 @@ export class NotificationsService {
     return !placeholders.includes(host) && !placeholders.includes(user) && !placeholders.includes(pass);
   }
 
-  private async findExistingReminder(product: ProductRow, type: 'in_app' | 'email', daysLeft: number) {
+  private async findExistingWarrantyReminder(product: ProductRow, type: 'in_app' | 'email', daysLeft: number) {
     const { data, error } = await this.supabase.client
       .from('notifications')
       .select('id')
       .eq('user_id', product.user_id)
       .eq('product_id', product.id)
+      .eq('reminder_type', 'warranty' satisfies ReminderType)
+      .eq('type', type)
+      .eq('threshold_days', daysLeft)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  private async findExistingMaintenanceReminder(maintenance: MaintenanceReminderRow, type: 'in_app' | 'email', daysLeft: number) {
+    const { data, error } = await this.supabase.client
+      .from('notifications')
+      .select('id')
+      .eq('user_id', maintenance.user_id)
+      .eq('maintenance_record_id', maintenance.id)
+      .eq('reminder_type', 'maintenance' satisfies ReminderType)
       .eq('type', type)
       .eq('threshold_days', daysLeft)
       .maybeSingle();

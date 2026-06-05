@@ -19,6 +19,7 @@ import { ProductDetailsCard } from '@/features/products/components/ProductDetail
 import { ProductDocuments } from '@/features/products/components/ProductDocuments';
 import { ProductHeader } from '@/features/products/components/ProductHeader';
 import { WarrantyStatusPanel } from '@/features/products/components/WarrantyStatusPanel';
+import { api } from '@/shared/api/backendApi';
 import { calculateDaysLeft, getWarrantyStatus } from '@/shared/lib/warranty';
 import type { ProductDocument } from '@/shared/types/domain';
 
@@ -28,7 +29,7 @@ export function ProductDetail() {
   const queryClient = useQueryClient();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState<ProductDocument['document_type']>('receipt');
-  const [maintenanceForm, setMaintenanceForm] = useState({ date: '', description: '', cost: '', service_provider: '' });
+  const [maintenanceForm, setMaintenanceForm] = useState({ date: '', description: '', cost: '', service_provider: '', next_reminder_date: '' });
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -52,10 +53,13 @@ export function ProductDetail() {
       description: maintenanceForm.description,
       cost: maintenanceForm.cost ? Number(maintenanceForm.cost) : null,
       service_provider: maintenanceForm.service_provider || null,
+      next_reminder_date: maintenanceForm.next_reminder_date || null,
     }),
-    onSuccess: () => {
-      setMaintenanceForm({ date: '', description: '', cost: '', service_provider: '' });
+    onSuccess: async () => {
+      setMaintenanceForm({ date: '', description: '', cost: '', service_provider: '', next_reminder_date: '' });
       queryClient.invalidateQueries({ queryKey: ['maintenance', id] });
+      await api.post('/notifications/run-check').catch(() => undefined);
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
 

@@ -124,7 +124,7 @@ export async function listMaintenance(productId: string) {
   return (data ?? []) as MaintenanceRecord[];
 }
 
-export async function addMaintenance(productId: string, input: Pick<MaintenanceRecord, 'date' | 'description' | 'cost' | 'service_provider'>) {
+export async function addMaintenance(productId: string, input: Pick<MaintenanceRecord, 'date' | 'description' | 'cost' | 'service_provider' | 'next_reminder_date'>) {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   const userId = userData.user?.id;

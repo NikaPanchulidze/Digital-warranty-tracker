@@ -4,6 +4,14 @@ export type EmailReminderProduct = {
   threshold: number;
 };
 
+export type EmailMaintenanceReminder = {
+  productName: string;
+  description: string;
+  daysLeft: number;
+  threshold: number;
+  reminderDate: string;
+};
+
 export function renderTestEmail() {
   return renderEmailLayout({
     title: 'Email reminders are ready',
@@ -29,6 +37,32 @@ export function renderWarrantyReminderText(product: EmailReminderProduct) {
     '',
     'Open Warranty Tracker to view the product details, receipts, and warranty information.',
   ].join('\n');
+}
+
+export function renderMaintenanceReminderEmail(reminder: EmailMaintenanceReminder) {
+  return renderEmailLayout({
+    title: 'Maintenance reminder',
+    body: `${escapeHtml(reminder.productName)} maintenance reminder: ${escapeHtml(reminder.description)} is scheduled ${formatMaintenanceTiming(reminder.daysLeft)}.`,
+    ctaText: reminder.threshold === 0 ? 'Due today' : `Reminder threshold: ${reminder.threshold} days`,
+  });
+}
+
+export function renderMaintenanceReminderText(reminder: EmailMaintenanceReminder) {
+  return [
+    `Maintenance reminder: ${reminder.productName}`,
+    '',
+    `${reminder.description} is scheduled ${formatMaintenanceTiming(reminder.daysLeft)}.`,
+    `Reminder date: ${reminder.reminderDate}.`,
+    reminder.threshold === 0 ? 'This maintenance is due today.' : `Reminder threshold: ${reminder.threshold} days.`,
+    '',
+    'Open Warranty Tracker to view the product and maintenance history.',
+  ].join('\n');
+}
+
+function formatMaintenanceTiming(daysLeft: number) {
+  if (daysLeft === 0) return 'today';
+  if (daysLeft === 1) return 'tomorrow';
+  return `in ${daysLeft} days`;
 }
 
 function renderEmailLayout({ title, body, ctaText }: { title: string; body: string; ctaText: string }) {
