@@ -1,108 +1,186 @@
-# Digital Warranty & Product Ownership Tracker
+# Digital Warranty Tracker
 
-Full-stack SaaS-style warranty tracker for managing products, documents, warranties, maintenance history, and reminders.
+This is a full-stack web application which allows users to register, manage owned products, upload warranty documents, track warranty expiration dates, record maintenance history, and receive reminders.
 
-## Stack
+## Core Frontend Service
 
-- Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, TanStack React Query, Axios, Recharts.
-- Backend: NestJS, Swagger, Nest Schedule, Resend.
-- Platform: Supabase Auth, Supabase PostgreSQL, Supabase Storage.
+- **React**
+- **TypeScript**
+- **Vite**
 
-## 1. Supabase Setup
+## Core Backend Service
 
-1. Create a Supabase project.
-2. Open the SQL editor and run [`supabase/schema.sql`](supabase/schema.sql).
-3. Confirm the private storage bucket `product-documents` exists.
-4. Copy your project URL, anon key, and service role key.
+- **NodeJs**
+- **TypeScript**
 
-The schema enables row-level security so users can only access their own products, documents, maintenance records, notifications, and notification settings.
+## Framework
 
-## 2. Frontend Setup
+- **NestJs**
 
-Create `.env.local` in the project root:
+## Database
 
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-VITE_API_URL=http://localhost:4000
-```
+- **Supabase PostgreSQL**
 
-Install and run:
+## Authentication
 
-```bash
-npm install
-npm run dev
-```
+- **Supabase Auth**
 
-## 3. Backend Setup
+## Storage
 
-Create `backend/.env`:
+- **Supabase Storage**
 
-```env
-PORT=4000
-FRONTEND_URL=http://localhost:5173
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-RESEND_API_KEY=your-resend-api-key
-EMAIL_FROM="Warranty Tracker <onboarding@resend.dev>"
-```
+## Host
 
-Resend values are optional for local development. If `RESEND_API_KEY` is missing or still uses a placeholder value, in-app notifications still work and email sending is shown as not configured in Settings.
+- **Vercel**
+- **Render**
 
-For production, create a Resend API key and set `EMAIL_FROM` to a verified sender. During early testing, Resend's onboarding sender may only deliver to verified/test recipients. After changing email values, restart the backend. Email reminders are sent when warranty or maintenance reminders are generated.
+## Services
 
-Install and run:
+- **Supabase**
+- **Resend**
+- **Swagger**
 
-```bash
-cd backend
-npm install
-npm run start:dev
-```
+## Main Features
 
-Swagger is available at:
-
-```text
-http://localhost:4000/docs
-```
-
-## Implemented Features
-
-- Supabase registration, login, logout, and protected dashboard routes.
-- Product create, edit, delete, list, search, filter, and sort.
-- Automatic warranty end-date calculation.
-- Warranty status and days-left display.
-- Supabase Storage document upload, download, and delete.
-- Maintenance record add/delete and total maintenance cost.
-- Backend dashboard analytics endpoint.
-- Backend in-app and email notification generation.
-- Daily scheduled warranty check.
-- Automatic warranty check after product create/update.
-- Daily notification cleanup for old read/delivery records.
-- Notification list, mark one read, mark all read.
-- Notification settings persistence.
-- Profile update, password change, and forgot-password reset flow.
-- CSV export.
+- User registration, login, logout, and password reset.
+- Product creation, editing, deletion, search, filter, sort, and pagination.
+- Automatic warranty end-date and warranty status calculation.
+- Dashboard with product, value, category, and warranty analytics.
+- Receipt, warranty certificate, and manual upload.
+- Maintenance history with service provider, cost, date, and description.
+- In-app notifications for warranty and maintenance reminders.
+- Email reminders using Resend.
+- Notification settings and profile settings.
+- CSV product export.
 - Swagger API documentation.
+
+## Project Structure
+
+- **`backend/`**: Contains NestJs backend application.
+- **`backend/src/analytics/`**: Handles dashboard analytics endpoints.
+- **`backend/src/auth/`**: Contains Supabase authentication guard and current user decorator.
+- **`backend/src/common/`**: Contains shared backend warranty calculation logic.
+- **`backend/src/export/`**: Handles CSV export functionality.
+- **`backend/src/notifications/`**: Handles in-app notifications, scheduled checks, cleanup, and email reminders.
+- **`backend/src/supabase/`**: Contains Supabase service configuration for backend access.
+- **`src/app/`**: Contains frontend application setup, routes, layouts, and shared app components.
+- **`src/features/auth/`**: Handles login, registration, forgot password, reset password, and authentication context.
+- **`src/features/dashboard/`**: Handles dashboard page, statistics, charts, and expiring soon table.
+- **`src/features/notifications/`**: Handles notification list and read/unread behavior.
+- **`src/features/products/`**: Handles product pages, forms, documents, warranty details, and maintenance history.
+- **`src/features/settings/`**: Handles profile, password, security, and notification settings.
+- **`src/shared/`**: Contains shared API client, hooks, utilities, constants, and reusable types.
+- **`supabase/`**: Contains SQL schema and database migration files.
+- **`public/`**: Contains public static assets such as SEO files and social preview image.
+- **`main.tsx`**: Frontend entry point.
+
+## Getting Started
+
+1. **Clone the Repository:**
+
+    ```bash
+    git clone https://github.com/NikaPanchulidze/Digital-warranty-tracker.git
+    ```
+
+2. **Navigate to the Project Directory:**
+
+    ```bash
+    cd Digital-warranty-tracker
+    ```
+
+3. **Install frontend dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+4. **Install backend dependencies:**
+
+    ```bash
+    cd backend
+    npm install
+    cd ..
+    ```
+
+5. **Create `.env.local` file in the project root:**
+
+    ```env
+    VITE_SUPABASE_URL=https://your-project.supabase.co
+    VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+    VITE_API_URL=http://localhost:4000
+    ```
+
+6. **Create `backend/.env` file:**
+
+    ```env
+    PORT=4000
+    FRONTEND_URL=http://localhost:5173
+    SUPABASE_URL=https://your-project.supabase.co
+    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+    RESEND_API_KEY=your-resend-api-key
+    EMAIL_FROM="Warranty Tracker <notifications@yourdomain.com>"
+    ```
+
+7. **Set up Supabase database:**
+
+    Open Supabase SQL Editor and run:
+
+    ```text
+    supabase/schema.sql
+    ```
+
+8. **Start backend:**
+
+    ```bash
+    npm --prefix backend run start:dev
+    ```
+
+9. **Start frontend:**
+
+    ```bash
+    npm run dev
+    ```
+
+## URL
+
+`https://www.warrantytracker.website/`
+
+## Backend URL
+
+`https://digital-warranty-backend.onrender.com/`
+
+## Documentation
+
+**Open Swagger API Documentation:**
+
+`https://digital-warranty-backend.onrender.com/docs`
+
+## Usage
+
+After running the application, register a new account or log in with an existing account. Then add products, upload documents, check warranty status on the dashboard, add maintenance records, and review generated notifications.
 
 ## Demo Flow
 
-1. Start backend and frontend.
-2. Register or log in.
-3. Add a product with a warranty.
-4. Upload a receipt/manual.
+1. Register or log in.
+2. Add a product with warranty information.
+3. Open the dashboard and check warranty analytics.
+4. Upload a receipt or warranty document.
 5. Add a maintenance record.
-6. Use search/filter/sort on Products.
-7. Open Dashboard and show analytics.
-8. Add an expiring product and show the generated in-app/email reminders.
-9. Mark notifications read.
-10. Export products as CSV.
-11. Open Swagger at `/docs`.
+6. Create or update a product near expiration and check notifications.
+7. Mark notifications as read.
+8. Export products as CSV.
+9. Open Swagger documentation.
 
-## Deployment: Vercel + Render
+## Build Checks
+
+```bash
+npm run build
+npm --prefix backend run build
+```
+
+## Deployment
 
 ### Frontend on Vercel
-
-Use the project root as the Vercel project.
 
 ```text
 Framework Preset: Vite
@@ -111,50 +189,15 @@ Output Directory: dist
 Install Command: npm install
 ```
 
-Add these Vercel environment variables:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-VITE_API_URL=https://your-render-backend.onrender.com
-```
-
-`vercel.json` is included so React Router routes such as `/products` and `/reset-password` work after refresh.
-
 ### Backend on Render
-
-Create a Render Web Service from the same repository. Use `backend` as the root directory.
 
 ```text
 Runtime: Node
+Root Directory: backend
 Build Command: npm install && npm run build
 Start Command: npm run start
 ```
 
-Add these Render environment variables:
+## Attention
 
-```env
-FRONTEND_URL=https://your-vercel-app.vercel.app
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-RESEND_API_KEY=your-resend-api-key
-EMAIL_FROM="Warranty Tracker <onboarding@resend.dev>"
-```
-
-### Supabase Auth URLs
-
-In Supabase Authentication -> URL Configuration, set:
-
-```text
-Site URL: https://your-vercel-app.vercel.app
-Redirect URLs:
-https://your-vercel-app.vercel.app
-https://your-vercel-app.vercel.app/reset-password
-```
-
-## Build Checks
-
-```bash
-npm run build
-npm --prefix backend run build
-```
+Make sure all production environment variables are configured on Vercel, Render, and Supabase before deployment. Supabase redirect URLs must include the production domain and reset password route.
