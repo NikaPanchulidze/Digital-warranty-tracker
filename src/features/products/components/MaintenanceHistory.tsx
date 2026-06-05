@@ -222,16 +222,11 @@ export function MaintenanceHistory({
                 </tr>
               ))}
           </tbody>
-          <tfoot className="bg-gray-50/50 font-medium text-gray-900">
-            <tr>
-              <td colSpan={3} className="px-6 py-3 text-right">
-                Total Maintenance Cost
-              </td>
-              <td className="px-6 py-3 text-right">{formatMoney(totalCost)}</td>
-              <td />
-            </tr>
-          </tfoot>
         </table>
+      </div>
+      <div className="border-t border-gray-100 bg-gray-50/50 px-6 py-3 text-center text-sm font-medium text-gray-900">
+        <span>Total Maintenance Cost</span>
+        <span className="ml-3">{formatMoney(totalCost)}</span>
       </div>
     </Card>
   );
