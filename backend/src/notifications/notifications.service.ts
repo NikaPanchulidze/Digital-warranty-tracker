@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Resend } from 'resend';
 import { SupabaseService } from '../supabase/supabase.service';
 import { calculateDaysLeft } from '../common/warranty';
 import {
@@ -49,28 +48,19 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class NotificationsService {
-  private readonly transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> | null;
+  private readonly resend: Resend | null;
 
   constructor(
     private readonly supabase: SupabaseService,
     private readonly config: ConfigService,
   ) {
-    const host = config.get<string>('SMTP_HOST');
-    const user = config.get<string>('SMTP_USER');
-    const pass = config.get<string>('SMTP_PASS');
-    this.transporter = this.hasUsableSmtpConfig(host, user, pass)
-      ? nodemailer.createTransport({
-        host,
-        port: Number(config.get<string>('SMTP_PORT') ?? 587),
-        secure: config.get<string>('SMTP_SECURE') === 'true',
-        auth: { user, pass },
-      })
-      : null;
+    const apiKey = config.get<string>('RESEND_API_KEY');
+    this.resend = this.hasUsableResendConfig(apiKey) ? new Resend(apiKey) : null;
   }
 
   getEmailStatus() {
     return {
-      configured: Boolean(this.transporter),
+      configured: Boolean(this.resend),
       from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <noreply@example.com>',
     };
   }
@@ -80,13 +70,12 @@ export class NotificationsService {
       throw new Error('Your account does not have an email address.');
     }
 
-    if (!this.transporter) {
-      throw new Error('Email is not configured. Add SMTP settings in backend/.env and restart the backend.');
+    if (!this.resend) {
+      throw new Error('Email is not configured. Add RESEND_API_KEY and EMAIL_FROM in backend/.env and restart the backend.');
     }
 
-    await this.transporter.sendMail({
-      from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <noreply@example.com>',
-      to: email,
+    await this.sendEmail({
+      to: [email],
       subject: 'Warranty Tracker test email',
       text: 'Email reminders are configured correctly for your Digital Warranty Tracker account.',
       html: renderTestEmail(),
@@ -266,14 +255,13 @@ export class NotificationsService {
   private async createEmailReminder(product: ProductRow, threshold: number, daysLeft: number, email: string) {
     const existing = await this.findExistingWarrantyReminder(product, 'email', threshold);
     if (existing) return false;
-    if (!this.transporter || !email) return false;
+    if (!this.resend || !email) return false;
 
     let status: 'sent' | 'failed' = 'failed';
     try {
       const reminder: EmailReminderProduct = { ...product, daysLeft, threshold };
-      await this.transporter.sendMail({
-        from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <noreply@example.com>',
-        to: email,
+      await this.sendEmail({
+        to: [email],
         subject: 'Warranty Reminder: Product warranty expires soon',
         text: renderWarrantyReminderText(reminder),
         html: renderWarrantyReminderEmail(reminder),
@@ -323,7 +311,7 @@ export class NotificationsService {
   private async createEmailMaintenanceReminder(maintenance: MaintenanceReminderRow, threshold: number, daysLeft: number, email: string) {
     const existing = await this.findExistingMaintenanceReminder(maintenance, 'email', threshold);
     if (existing) return false;
-    if (!this.transporter || !email) return false;
+    if (!this.resend || !email) return false;
 
     const productName = maintenance.products?.name ?? 'Product';
     let status: 'sent' | 'failed' = 'failed';
@@ -335,9 +323,8 @@ export class NotificationsService {
         threshold,
         reminderDate: maintenance.next_reminder_date ?? '',
       };
-      await this.transporter.sendMail({
-        from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <noreply@example.com>',
-        to: email,
+      await this.sendEmail({
+        to: [email],
         subject: 'Maintenance Reminder: Product service is due',
         text: renderMaintenanceReminderText(reminder),
         html: renderMaintenanceReminderEmail(reminder),
@@ -363,11 +350,29 @@ export class NotificationsService {
     return true;
   }
 
-  private hasUsableSmtpConfig(host?: string, user?: string, pass?: string) {
-    if (!host || !user || !pass) return false;
+  private async sendEmail({ to, subject, text, html }: { to: string[]; subject: string; text: string; html: string }) {
+    if (!this.resend) {
+      throw new Error('Email is not configured.');
+    }
 
-    const placeholders = ['smtp.example.com', 'your-smtp-user', 'your-smtp-password'];
-    return !placeholders.includes(host) && !placeholders.includes(user) && !placeholders.includes(pass);
+    const { error } = await this.resend.emails.send({
+      from: this.config.get<string>('EMAIL_FROM') ?? 'Warranty Tracker <onboarding@resend.dev>',
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  private hasUsableResendConfig(apiKey?: string) {
+    if (!apiKey) return false;
+
+    const placeholders = ['re_xxxxxxxxx', 'your-resend-api-key'];
+    return !placeholders.includes(apiKey);
   }
 
   private async findExistingWarrantyReminder(product: ProductRow, type: 'in_app' | 'email', daysLeft: number) {

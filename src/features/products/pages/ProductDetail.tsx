@@ -55,10 +55,12 @@ export function ProductDetail() {
       service_provider: maintenanceForm.service_provider || null,
       next_reminder_date: maintenanceForm.next_reminder_date || null,
     }),
-    onSuccess: async () => {
+    onSuccess: () => {
       setMaintenanceForm({ date: '', description: '', cost: '', service_provider: '', next_reminder_date: '' });
       queryClient.invalidateQueries({ queryKey: ['maintenance', id] });
-      await api.post('/notifications/run-check').catch(() => undefined);
+      void api.post('/notifications/run-check')
+        .catch(() => undefined)
+        .finally(() => queryClient.invalidateQueries({ queryKey: ['notifications'] }));
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });

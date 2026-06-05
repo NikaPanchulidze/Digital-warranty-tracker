@@ -54,12 +54,10 @@ export function AddProduct() {
 
   const mutation = useMutation({
     mutationFn: () => saveProduct(form, id),
-    onSuccess: async (saved) => {
-      try {
-        await api.post('/notifications/run-check');
-      } catch {
-        // Product saving should not fail just because reminder generation is unavailable.
-      }
+    onSuccess: (saved) => {
+      void api.post('/notifications/run-check')
+        .catch(() => undefined)
+        .finally(() => queryClient.invalidateQueries({ queryKey: ['notifications'] }));
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['analytics-dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['product', saved.id] });

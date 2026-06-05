@@ -1,11 +1,11 @@
 # Digital Warranty & Product Ownership Tracker
 
-Full-stack SaaS-style warranty tracker built from the Figma-exported React UI.
+Full-stack SaaS-style warranty tracker for managing products, documents, warranties, maintenance history, and reminders.
 
 ## Stack
 
 - Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, TanStack React Query, Axios, Recharts.
-- Backend: NestJS, Swagger, Nest Schedule, Nodemailer.
+- Backend: NestJS, Swagger, Nest Schedule, Resend.
 - Platform: Supabase Auth, Supabase PostgreSQL, Supabase Storage.
 
 ## 1. Supabase Setup
@@ -43,28 +43,13 @@ PORT=4000
 FRONTEND_URL=http://localhost:5173
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-smtp-user
-SMTP_PASS=your-smtp-password
-EMAIL_FROM="Warranty Tracker <noreply@example.com>"
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM="Warranty Tracker <onboarding@resend.dev>"
 ```
 
-SMTP values are optional for local development. If they are missing or still use placeholder values, in-app notifications still work and email sending is shown as not configured in Settings.
+Resend values are optional for local development. If `RESEND_API_KEY` is missing or still uses a placeholder value, in-app notifications still work and email sending is shown as not configured in Settings.
 
-For Gmail, use an app password, not your normal Gmail password:
-
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-gmail-address@gmail.com
-SMTP_PASS=your-google-app-password
-EMAIL_FROM="Warranty Tracker <your-gmail-address@gmail.com>"
-```
-
-After changing SMTP values, restart the backend. Email reminders are sent when warranty reminders are generated for products inside the configured thresholds.
+For production, create a Resend API key and set `EMAIL_FROM` to a verified sender. During early testing, Resend's onboarding sender may only deliver to verified/test recipients. After changing email values, restart the backend. Email reminders are sent when warranty or maintenance reminders are generated.
 
 Install and run:
 
@@ -152,12 +137,8 @@ Add these Render environment variables:
 FRONTEND_URL=https://your-vercel-app.vercel.app
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-gmail-address@gmail.com
-SMTP_PASS=your-google-app-password
-EMAIL_FROM="Warranty Tracker <your-gmail-address@gmail.com>"
+RESEND_API_KEY=your-resend-api-key
+EMAIL_FROM="Warranty Tracker <onboarding@resend.dev>"
 ```
 
 ### Supabase Auth URLs
