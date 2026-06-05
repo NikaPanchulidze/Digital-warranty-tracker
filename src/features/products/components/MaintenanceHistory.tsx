@@ -1,4 +1,5 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { useRef } from 'react';
+import { Calendar, Plus, Trash2 } from 'lucide-react';
 
 import { Button, Card, Input, Skeleton, Spinner, Textarea } from '@/app/components/ui';
 import type { MaintenanceRecord } from '@/shared/types/domain';
@@ -23,26 +24,54 @@ type MaintenanceHistoryProps = {
 };
 
 export function MaintenanceHistory({ maintenance, form, totalCost, isLoading, isAdding, onFormChange, onAdd, onDelete }: MaintenanceHistoryProps) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  function openDatePicker() {
+    const input = dateInputRef.current;
+    if (!input) return;
+
+    input.focus();
+    if (typeof input.showPicker === 'function') {
+      input.showPicker();
+      return;
+    }
+
+    input.click();
+  }
+
   return (
     <Card>
       <div className="px-6 py-5 border-b border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900">Maintenance History</h2>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div>
-            <label htmlFor="maintenance-date" className="mb-1.5 block text-xs font-medium text-gray-500 md:hidden">
+        <div className="mt-4 grid grid-cols-1 items-end gap-3 md:grid-cols-4">
+          <div className="relative">
+            <label htmlFor="maintenance-date" className="mb-1.5 block text-xs font-medium text-gray-500 md:sr-only md:mb-0">
               Maintenance date
             </label>
+            <button
+              type="button"
+              className="relative flex h-12 w-full items-center justify-between rounded-lg border-2 border-gray-300 bg-white px-4 text-left text-sm transition-colors hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              onClick={openDatePicker}
+            >
+                <span className={form.date ? 'font-medium text-gray-900' : 'text-gray-400'}>
+                  {form.date ? formatDate(form.date) : 'Select date'}
+                </span>
+                <Calendar className="h-4 w-4 text-gray-500" />
+            </button>
             <Input
+              ref={dateInputRef}
               id="maintenance-date"
               type="date"
-              className="text-gray-900 [color-scheme:light]"
+              aria-label="Maintenance date"
+              className="pointer-events-none absolute h-px w-px opacity-0"
+              tabIndex={-1}
               value={form.date}
               onChange={(event) => onFormChange({ ...form, date: event.target.value })}
             />
           </div>
-          <Input placeholder="Service provider" value={form.service_provider} onChange={(event) => onFormChange({ ...form, service_provider: event.target.value })} />
-          <Input type="number" min="0" step="0.01" placeholder="Cost" value={form.cost} onChange={(event) => onFormChange({ ...form, cost: event.target.value })} />
-          <Button type="button" className="gap-2" disabled={!form.date || !form.description || isAdding} onClick={onAdd}>
+          <Input className="h-12 rounded-lg border-2 border-gray-300 bg-white px-4" placeholder="Service provider" value={form.service_provider} onChange={(event) => onFormChange({ ...form, service_provider: event.target.value })} />
+          <Input className="h-12 rounded-lg border-2 border-gray-300 bg-white px-4" type="number" min="0" step="0.01" placeholder="Cost" value={form.cost} onChange={(event) => onFormChange({ ...form, cost: event.target.value })} />
+          <Button type="button" className="h-12 gap-2 rounded-lg" disabled={!form.date || !form.description || isAdding} onClick={onAdd}>
             {isAdding ? <Spinner /> : <Plus className="w-4 h-4" />}
             {isAdding ? 'Adding...' : 'Add'}
           </Button>
