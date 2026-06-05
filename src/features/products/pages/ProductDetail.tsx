@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -29,6 +29,10 @@ export function ProductDetail() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState<ProductDocument['document_type']>('receipt');
   const [maintenanceForm, setMaintenanceForm] = useState({ date: '', description: '', cost: '', service_provider: '' });
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, [id]);
 
   const { data: product, isLoading } = useQuery({ queryKey: ['product', id], queryFn: () => getProduct(id!), enabled: Boolean(id) });
   const { data: documents = [], isLoading: areDocumentsLoading } = useQuery({ queryKey: ['documents', id], queryFn: () => listDocuments(id!), enabled: Boolean(id) });

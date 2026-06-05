@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -97,7 +97,23 @@ export function DashboardLayout() {
 
   useEffect(() => {
     mainContentRef.current?.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
   }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    mainContentRef.current?.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
+  }, [location.pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    document.documentElement.style.overflow = isMobileMenuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   function handleGlobalSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -107,7 +123,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F8FAFC] flex flex-col pt-16 font-sans text-gray-900 md:flex-row md:pt-0">
+    <div className="fixed inset-0 overflow-hidden bg-[#F8FAFC] flex flex-col pt-16 font-sans text-gray-900 md:flex-row md:pt-0">
       {/* Mobile Header */}
       <div className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:hidden">
         <button
@@ -133,7 +149,7 @@ export function DashboardLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-40 w-[260px] bg-white border-l border-gray-200 transform transition-transform duration-200 ease-in-out md:right-auto md:left-0 md:translate-x-0 md:static md:h-screen md:border-l-0 md:border-r flex flex-col",
+          "fixed inset-y-0 right-0 z-40 w-[min(82vw,320px)] bg-white border-l border-gray-200 transform transition-transform duration-200 ease-in-out md:right-auto md:left-0 md:w-[260px] md:translate-x-0 md:static md:h-screen md:border-l-0 md:border-r flex flex-col",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -355,7 +371,13 @@ export function DashboardLayout() {
         </header>
 
         {/* Main Content Area */}
-        <main ref={mainContentRef} className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main
+          ref={mainContentRef}
+          className={cn(
+            "flex-1 p-4 md:p-8",
+            isMobileMenuOpen ? "overflow-hidden" : "overflow-y-auto",
+          )}
+        >
           <div className="max-w-[1600px] mx-auto w-full">
             <Outlet />
           </div>
