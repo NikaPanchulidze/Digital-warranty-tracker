@@ -153,28 +153,6 @@ export function DashboardLayout() {
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-gray-100 px-5 md:hidden">
-          <button
-            type="button"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              navigate("/");
-            }}
-            className="flex items-center gap-2 font-bold text-xl text-blue-600"
-          >
-            <Package className="w-6 h-6" />
-            <span>Tracker</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="p-2 text-gray-500"
-            aria-label="Close menu"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
         <div className="h-16 flex items-center px-6 border-b border-gray-100 hidden md:flex">
           <button
             type="button"
