@@ -1,6 +1,6 @@
 import { Download, FileText, Trash2, UploadCloud } from 'lucide-react';
 
-import { Button, Card, Input, Select, Skeleton, Spinner } from '@/app/components/ui';
+import { Button, Card, Select, Skeleton, Spinner } from '@/app/components/ui';
 import type { ProductDocument } from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/warranty';
 
@@ -34,7 +34,16 @@ export function ProductDocuments({
       <div className="px-6 py-5 border-b border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-[1fr_180px_auto] gap-3">
-          <Input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => onFileChange(event.target.files?.[0] ?? null)} />
+          <label className="flex h-12 min-w-0 cursor-pointer items-center rounded-lg border-2 border-gray-300 bg-white px-4 text-sm text-gray-900 transition-colors hover:border-blue-400">
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              className="sr-only"
+              onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
+            />
+            <span className="shrink-0 font-medium text-blue-600">Choose file</span>
+            <span className="ml-3 min-w-0 truncate text-gray-500">{selectedFile?.name ?? 'No file selected'}</span>
+          </label>
           <Select value={documentType} onChange={(event) => onDocumentTypeChange(event.target.value as ProductDocument['document_type'])}>
             <option value="receipt">Receipt</option>
             <option value="warranty_card">Warranty Card</option>

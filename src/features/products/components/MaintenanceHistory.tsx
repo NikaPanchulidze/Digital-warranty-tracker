@@ -28,7 +28,18 @@ export function MaintenanceHistory({ maintenance, form, totalCost, isLoading, is
       <div className="px-6 py-5 border-b border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900">Maintenance History</h2>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <Input type="date" value={form.date} onChange={(event) => onFormChange({ ...form, date: event.target.value })} />
+          <div>
+            <label htmlFor="maintenance-date" className="mb-1.5 block text-xs font-medium text-gray-500 md:hidden">
+              Maintenance date
+            </label>
+            <Input
+              id="maintenance-date"
+              type="date"
+              className="text-gray-900 [color-scheme:light]"
+              value={form.date}
+              onChange={(event) => onFormChange({ ...form, date: event.target.value })}
+            />
+          </div>
           <Input placeholder="Service provider" value={form.service_provider} onChange={(event) => onFormChange({ ...form, service_provider: event.target.value })} />
           <Input type="number" min="0" step="0.01" placeholder="Cost" value={form.cost} onChange={(event) => onFormChange({ ...form, cost: event.target.value })} />
           <Button type="button" className="gap-2" disabled={!form.date || !form.description || isAdding} onClick={onAdd}>
