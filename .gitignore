@@ -6,3 +6,6 @@ backend/dist
 backend/.env
 *.log
 visual-qa-screenshots
+logs/
+test-results/
+playwright-report/
