@@ -25,6 +25,7 @@ export function DashboardLayout() {
   const [globalSearch, setGlobalSearch] = useState("");
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const notificationsMenuRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -94,6 +95,10 @@ export function DashboardLayout() {
     setGlobalSearch(params.get("search") ?? "");
   }, [location.pathname, location.search]);
 
+  useEffect(() => {
+    mainContentRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [location.pathname]);
+
   function handleGlobalSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -102,9 +107,9 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F8FAFC] flex flex-col md:flex-row font-sans text-gray-900">
+    <div className="h-screen overflow-hidden bg-[#F8FAFC] flex flex-col pt-16 font-sans text-gray-900 md:flex-row md:pt-0">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-30">
+      <div className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:hidden">
         <button
           type="button"
           onClick={() => navigate("/")}
@@ -350,7 +355,7 @@ export function DashboardLayout() {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main ref={mainContentRef} className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-[1600px] mx-auto w-full">
             <Outlet />
           </div>
