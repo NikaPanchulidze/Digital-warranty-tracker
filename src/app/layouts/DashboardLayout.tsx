@@ -149,10 +149,32 @@ export function DashboardLayout() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-40 w-[min(82vw,320px)] bg-white border-l border-gray-200 transform transition-transform duration-200 ease-in-out md:right-auto md:left-0 md:w-[260px] md:translate-x-0 md:static md:h-screen md:border-l-0 md:border-r flex flex-col",
+          "fixed inset-y-0 right-0 z-[70] w-[min(82vw,320px)] bg-white border-l border-gray-200 transform transition-transform duration-200 ease-in-out md:right-auto md:left-0 md:z-40 md:w-[260px] md:translate-x-0 md:static md:h-screen md:border-l-0 md:border-r flex flex-col",
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
+        <div className="flex h-16 items-center justify-between border-b border-gray-100 px-5 md:hidden">
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              navigate("/");
+            }}
+            className="flex items-center gap-2 font-bold text-xl text-blue-600"
+          >
+            <Package className="w-6 h-6" />
+            <span>Tracker</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-2 text-gray-500"
+            aria-label="Close menu"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
         <div className="h-16 flex items-center px-6 border-b border-gray-100 hidden md:flex">
           <button
             type="button"
@@ -205,7 +227,7 @@ export function DashboardLayout() {
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-gray-900/50 z-30 md:hidden"
+          className="fixed inset-0 bg-gray-900/50 z-[60] md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
