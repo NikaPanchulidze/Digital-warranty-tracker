@@ -7,7 +7,7 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<{ email: string; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
 };
 
@@ -43,15 +43,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
 
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      const normalizedEmail = email.trim().toLowerCase();
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email: normalizedEmail, password });
       if (signUpError) throw signUpError;
 
       const { data } = await supabase.auth.getUser();
       const signedInEmail = data.user?.email?.toLowerCase();
-      if (signedInEmail && signedInEmail !== email.trim().toLowerCase()) {
+      if (signedInEmail && signedInEmail !== normalizedEmail) {
         await supabase.auth.signOut({ scope: 'local' });
         throw new Error('Account was created, but you were not signed in to the new account. Please sign in with the new email.');
       }
+
+      return {
+        email: normalizedEmail,
+        needsConfirmation: !signUpData.session,
+      };
     },
     async signOut() {
       const { error } = await supabase.auth.signOut();
