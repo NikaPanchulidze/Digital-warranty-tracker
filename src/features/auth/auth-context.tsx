@@ -40,8 +40,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
     },
     async signUp(email, password) {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
+
+      const { error: signUpError } = await supabase.auth.signUp({ email, password });
+      if (signUpError) throw signUpError;
+
+      const { data } = await supabase.auth.getUser();
+      const signedInEmail = data.user?.email?.toLowerCase();
+      if (signedInEmail && signedInEmail !== email.trim().toLowerCase()) {
+        await supabase.auth.signOut({ scope: 'local' });
+        throw new Error('Account was created, but you were not signed in to the new account. Please sign in with the new email.');
+      }
     },
     async signOut() {
       const { error } = await supabase.auth.signOut();
