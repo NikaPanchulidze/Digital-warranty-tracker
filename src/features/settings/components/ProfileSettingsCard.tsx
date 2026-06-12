@@ -45,7 +45,8 @@ export function ProfileSettingsCard({
 
         <div>
           <Label htmlFor="profile-phone">Phone</Label>
-          <Input id="profile-phone" value={phone} placeholder="Optional phone number" onChange={(event) => onPhoneChange(event.target.value)} />
+          <Input id="profile-phone" value={phone} placeholder="+995 555 123 456" inputMode="tel" autoComplete="tel" onChange={(event) => onPhoneChange(event.target.value)} />
+          <p className="mt-2 text-xs text-gray-500">Optional. Use digits with spaces, dashes, parentheses, or a leading plus sign.</p>
         </div>
 
         <div>

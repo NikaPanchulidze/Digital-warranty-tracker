@@ -8,6 +8,7 @@ import { NotificationSettingsCard } from '@/features/settings/components/Notific
 import { ProfileSettingsCard } from '@/features/settings/components/ProfileSettingsCard';
 import { SecuritySettingsCard } from '@/features/settings/components/SecuritySettingsCard';
 import { SettingsNavButton } from '@/features/settings/components/SettingsNavButton';
+import { validateDisplayName, validatePhone } from '@/shared/lib/profileValidation';
 
 type SettingsSection = 'notifications' | 'profile' | 'security';
 
@@ -82,7 +83,7 @@ export function Settings() {
 
   const handleSaveProfile = () => {
     setProfileError('');
-    const error = validateDisplayName(fullName);
+    const error = validateDisplayName(fullName) || validatePhone(phone);
     if (error) {
       setProfileError(error);
       return;
@@ -163,13 +164,5 @@ function validatePasswordChange(currentPassword: string, newPassword: string, co
   if (newPassword.length < 8) return 'New password must be at least 8 characters.';
   if (newPassword !== confirmPassword) return 'New passwords do not match.';
   if (currentPassword === newPassword) return 'New password must be different from your current password.';
-  return '';
-}
-
-function validateDisplayName(fullName: string) {
-  const value = fullName.trim();
-  if (!value) return 'Enter a display name.';
-  if (value.length < 3) return 'Display name must be at least 3 characters.';
-  if (value.length > 40) return 'Display name must be 40 characters or fewer.';
   return '';
 }

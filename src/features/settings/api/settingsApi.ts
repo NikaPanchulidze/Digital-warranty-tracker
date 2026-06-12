@@ -1,5 +1,6 @@
 import { supabase } from '@/shared/api/supabase';
 import { api } from '@/shared/api/backendApi';
+import { validateDisplayName, validatePhone } from '@/shared/lib/profileValidation';
 import type { NotificationSettings } from '@/shared/types/domain';
 
 export async function getNotificationSettings() {
@@ -50,17 +51,16 @@ export type ProfileInput = {
 
 export async function saveProfile(input: ProfileInput) {
   const fullName = input.fullName.trim();
-  if (fullName.length < 3) {
-    throw new Error('Display name must be at least 3 characters.');
-  }
-  if (fullName.length > 40) {
-    throw new Error('Display name must be 40 characters or fewer.');
-  }
+  const phone = input.phone.trim();
+  const nameError = validateDisplayName(fullName);
+  if (nameError) throw new Error(nameError);
+  const phoneError = validatePhone(phone);
+  if (phoneError) throw new Error(phoneError);
 
   const { data, error } = await supabase.auth.updateUser({
     data: {
       full_name: fullName,
-      phone: input.phone.trim(),
+      phone,
     },
   });
 
