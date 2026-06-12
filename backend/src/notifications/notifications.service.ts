@@ -89,6 +89,7 @@ export class NotificationsService {
       .from('notifications')
       .select('*')
       .eq('user_id', userId)
+      .eq('type', 'in_app')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data ?? [];
@@ -111,6 +112,7 @@ export class NotificationsService {
       .from('notifications')
       .update({ is_read: true })
       .eq('user_id', userId)
+      .eq('type', 'in_app')
       .eq('is_read', false);
     if (error) throw error;
     return { success: true };
