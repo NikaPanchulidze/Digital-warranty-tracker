@@ -677,14 +677,3 @@ Important documented business rules:
 This project is prepared as a bachelor project by Nika Panchulidze.
 
 The source code may be used for academic review, demonstration, and learning purposes. If the project is reused or modified, credit should be given to the original author.
-
-## Contribution Guidelines
-
-This project is mainly maintained by the project author. If changes are made in the future, the following rules should be followed:
-
-- Use a separate branch for each feature or fix.
-- Do not commit `.env` files, API keys, or private credentials.
-- Keep frontend feature code inside `src/features`.
-- Keep backend business logic inside service files.
-- Run frontend and backend build checks before submitting changes.
-- Update the README when configuration, API behavior, or deployment steps change.
