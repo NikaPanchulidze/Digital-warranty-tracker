@@ -85,10 +85,23 @@ export function Settings() {
     setProfileError('');
     const error = validateDisplayName(fullName) || validatePhone(phone);
     if (error) {
+      profileMutation.reset();
       setProfileError(error);
       return;
     }
     profileMutation.mutate();
+  };
+
+  const handleFullNameChange = (value: string) => {
+    profileMutation.reset();
+    setProfileError('');
+    setFullName(value);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    profileMutation.reset();
+    setProfileError('');
+    setPhone(value);
   };
 
   return (
@@ -132,8 +145,8 @@ export function Settings() {
               isSuccess={profileMutation.isSuccess}
               isError={profileMutation.isError}
               error={profileError}
-              onFullNameChange={setFullName}
-              onPhoneChange={setPhone}
+              onFullNameChange={handleFullNameChange}
+              onPhoneChange={handlePhoneChange}
               onSave={handleSaveProfile}
             />
           )}

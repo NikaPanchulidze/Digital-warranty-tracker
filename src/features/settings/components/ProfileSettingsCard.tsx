@@ -57,7 +57,7 @@ export function ProfileSettingsCard({
       </div>
 
       <div className="pt-6 mt-6 border-t border-gray-100 flex items-center justify-end gap-3">
-        {isSuccess && <span className="text-sm text-green-600">Profile saved.</span>}
+        {isSuccess && !error && !isError && <span className="text-sm text-green-600">Profile saved.</span>}
         {(error || isError) && <span className="text-sm text-red-600">{error || 'Unable to save profile.'}</span>}
         <Button type="button" onClick={onSave} disabled={isSaving} className="gap-2">
           {isSaving && <Spinner />}
