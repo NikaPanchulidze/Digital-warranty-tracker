@@ -359,6 +359,7 @@ Create `.env.local` in the project root:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_API_URL=http://localhost:4000
+VITE_SITE_URL=http://localhost:5173
 ```
 
 ### Step 5: Configure Backend Environment
@@ -381,6 +382,7 @@ EMAIL_FROM="Warranty Tracker <notifications@yourdomain.com>"
 | `VITE_SUPABASE_URL` | `.env.local` | Yes | Supabase project URL used by frontend. |
 | `VITE_SUPABASE_ANON_KEY` | `.env.local` | Yes | Supabase public anon key. |
 | `VITE_API_URL` | `.env.local` | Yes | Backend API URL. |
+| `VITE_SITE_URL` | `.env.local` | Yes | Frontend URL used for password reset email redirects. |
 | `PORT` | `backend/.env` | No | Backend server port. Default is `4000`. |
 | `FRONTEND_URL` | `backend/.env` | Yes | Allowed CORS origin. |
 | `SUPABASE_URL` | `backend/.env` | Yes | Supabase project URL used by backend. |
@@ -607,6 +609,7 @@ Production frontend environment variables:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_API_URL=https://digital-warranty-backend.onrender.com
+VITE_SITE_URL=https://www.warrantytracker.website
 ```
 
 ### Backend on Render

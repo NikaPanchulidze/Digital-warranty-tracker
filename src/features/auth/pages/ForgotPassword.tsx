@@ -3,6 +3,8 @@ import { Link } from 'react-router';
 import { Button, Input, Label, Spinner } from '@/app/components/ui';
 import { supabase } from '@/shared/api/supabase';
 
+const siteUrl = import.meta.env.VITE_SITE_URL ?? window.location.origin;
+
 export function ForgotPassword() {
   const [emailSentTo, setEmailSentTo] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +21,7 @@ export function ForgotPassword() {
 
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${siteUrl.replace(/\/$/, '')}/reset-password`,
       });
 
       if (resetError) throw resetError;
