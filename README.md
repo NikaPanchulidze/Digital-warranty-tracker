@@ -27,6 +27,7 @@ The main goal of this project is to help users manage product ownership records 
 ### Main Features
 
 - User registration, login, logout, and password reset.
+- Public landing page for unauthenticated visitors.
 - Product creation, editing, deletion, search, filtering, sorting, and pagination.
 - Automatic warranty end-date calculation.
 - Warranty status display: active, expiring soon, or expired.
@@ -63,7 +64,7 @@ https://digital-warranty-backend.onrender.com/docs
 
 The system uses a separated frontend and backend architecture.
 
-The frontend is a React single-page application hosted on Vercel. It communicates with Supabase for authentication, database operations, and file storage. It also communicates with the NestJs backend for analytics, notifications, scheduled reminder logic, and CSV export.
+The frontend is a React single-page application hosted on Vercel. It includes a public landing page at `/` and a protected application workspace at `/dashboard`. It communicates with Supabase for authentication, database operations, and file storage. It also communicates with the NestJs backend for analytics, notifications, scheduled reminder logic, and CSV export.
 
 The backend is a NestJs REST API hosted on Render. It validates Supabase bearer tokens, uses the Supabase service role key for server-side database access, generates reminders, sends emails through Resend, and exposes Swagger documentation.
 
@@ -102,7 +103,7 @@ sequenceDiagram
     participant Supabase
     participant Resend
 
-    User->>Frontend: Add or update product
+    User->>Frontend: Add or update product in protected dashboard
     Frontend->>Supabase: Save product data
     Frontend->>Backend: POST /notifications/run-check
     Backend->>Supabase: Read user's products and notification settings
@@ -464,10 +465,12 @@ http://localhost:4000/docs
 ### Use Case 1: Create an Account
 
 1. Open the application.
-2. Click **Start tracking** or **Register**.
-3. Enter email and password.
-4. Submit the form.
-5. Log in after account creation.
+2. Review the public landing page.
+3. Click **Start tracking**, **Create your account**, or **Register**.
+4. Enter email and password.
+5. Submit the form.
+6. Confirm the account from the email message if email confirmation is enabled.
+7. Log in and open the protected dashboard.
 
 Example:
 
@@ -476,7 +479,14 @@ User wants to store all laptop and appliance warranties in one place.
 The user creates an account and enters the dashboard.
 ```
 
-### Use Case 2: Add a Product
+### Use Case 2: Navigate the Application
+
+1. Open the public website at `/`.
+2. If logged out, use the landing page actions to log in or register.
+3. If logged in, open `/dashboard` to view the private workspace.
+4. Use the sidebar or mobile menu to move between dashboard, products, notifications, and settings.
+
+### Use Case 3: Add a Product
 
 1. Open **Products**.
 2. Click **Add Product**.
@@ -493,7 +503,7 @@ Warranty duration: 12 months
 Warranty end date: 2026-06-10
 ```
 
-### Use Case 3: Upload a Document
+### Use Case 4: Upload a Document
 
 1. Open a product detail page.
 2. Go to the **Documents** section.
@@ -501,7 +511,7 @@ Warranty end date: 2026-06-10
 4. Choose a document type, such as receipt or manual.
 5. Click **Upload**.
 
-### Use Case 4: Add Maintenance History
+### Use Case 5: Add Maintenance History
 
 1. Open a product detail page.
 2. Go to **Maintenance History**.
@@ -509,14 +519,14 @@ Warranty end date: 2026-06-10
 4. Optionally enter the next reminder date.
 5. Click **Add**.
 
-### Use Case 5: View Notifications
+### Use Case 6: View Notifications
 
 1. Open the notification icon or **Notifications** page.
 2. Review unread warranty and maintenance reminders.
 3. Open related product details.
 4. The notification can be marked as read.
 
-### Use Case 6: Export Products
+### Use Case 7: Export Products
 
 1. Open **Products**.
 2. Click **Export CSV**.
@@ -556,6 +566,7 @@ docs/screenshots/
 - **`src/app/`**: Contains frontend application setup, routes, layouts, and shared app components.
 - **`src/features/auth/`**: Handles login, registration, forgot password, reset password, and authentication context.
 - **`src/features/dashboard/`**: Handles dashboard page, statistics, charts, and expiring soon table.
+- **`src/features/landing/`**: Handles the public marketing and entry landing page.
 - **`src/features/notifications/`**: Handles notification list and read/unread behavior.
 - **`src/features/products/`**: Handles product pages, forms, documents, warranty details, and maintenance history.
 - **`src/features/settings/`**: Handles profile, password, security, and notification settings.
@@ -591,6 +602,7 @@ Recommended manual QA checklist:
 - Mark notifications as read.
 - Export CSV.
 - Test responsive layout on desktop and mobile.
+- Test the public landing page at mobile, tablet, laptop, and desktop widths.
 
 ## Deployment
 
