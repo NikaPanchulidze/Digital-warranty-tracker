@@ -31,7 +31,7 @@ export function Register() {
         setConfirmationEmail(result.email);
         return;
       }
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account.');
     } finally {

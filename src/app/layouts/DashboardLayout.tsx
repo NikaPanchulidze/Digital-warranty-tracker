@@ -47,7 +47,7 @@ export function DashboardLayout() {
   }
 
   const navigation = [
-    { name: "Dashboard", to: "/", icon: LayoutDashboard },
+    { name: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
     { name: "Products", to: "/products", icon: Package },
     { name: "Notifications", to: "/notifications", icon: Bell },
     { name: "Settings", to: "/settings", icon: Settings },
@@ -128,7 +128,7 @@ export function DashboardLayout() {
       <div className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:hidden">
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
           className="flex items-center gap-2 font-bold text-xl text-blue-600"
         >
           <Package className="w-6 h-6" />
@@ -158,7 +158,7 @@ export function DashboardLayout() {
             type="button"
             onClick={() => {
               setIsMobileMenuOpen(false);
-              navigate("/");
+              navigate("/dashboard");
             }}
             className="flex items-center gap-2 font-bold text-xl text-blue-600 tracking-tight"
           >

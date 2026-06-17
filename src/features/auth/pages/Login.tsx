@@ -18,7 +18,7 @@ export function Login() {
 
     try {
       await signIn(String(form.get('email')), String(form.get('password')));
-      navigate((location.state as any)?.from?.pathname ?? '/', { replace: true });
+      navigate((location.state as any)?.from?.pathname ?? '/dashboard', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in.');
     } finally {
